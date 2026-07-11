@@ -1,9 +1,9 @@
-type StatusCardCopyProps = {
+type StatusCardProps = {
   title: string;
   value: string;
 };
 
-export function StatusCardCopy({ title, value }: StatusCardCopyProps) {
+export function StatusCard({ title, value }: StatusCardProps) {
   return (
     <section>
       <h2>{title}</h2>
