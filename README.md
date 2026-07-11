@@ -1,23 +1,52 @@
-# RepoDiet E2E Test Fixture
+# RepoDiet Hard E2E Test Fixture
 
-This repository intentionally contains controlled cleanup cases for validating RepoDiet end to end.
+This repository is a controlled adversarial test for RepoDiet. It contains real cleanup opportunities plus false-positive traps that must stay alive.
 
-## Expected findings
+## Required automatic outcomes
 
-- `src/components/Dashboard.tsx`: unused `Clock` import; safe automatic edit.
-- `src/archive/OldDashboard.backup.tsx`: obvious unreferenced backup file; safe deletion candidate.
-- `src/lib/unused-helper.ts`: unreferenced helper; review-first, not automatic deletion.
-- `src/components/StatusCard.tsx` and `StatusCardCopy.tsx`: equivalent duplicate UI logic; review-first.
-- `src/lib/orphan-a.ts` and `src/lib/orphan-b.ts`: internally connected orphan subgraph; review-first.
-- `left-pad`: intentionally unused dependency; review-first unless package removal is fully validated.
-- `src/app/page.tsx` and `src/app/layout.tsx`: protected framework entry files and must never be deleted.
+1. Remove the unused `Clock` import from `src/components/Dashboard.tsx`.
+2. Delete `src/archive/OldDashboard.backup.tsx` after deletion proof and verification.
+3. Delete `src/unused/confirmed-unused.ts` only when native unused-code evidence and the internal reference graph agree.
+4. Delete `src/unused/empty-module.ts` only after safety checks.
+5. Consolidate `StatusCardCopy.tsx` into `StatusCard.tsx`, update `LegacyStatusPanel.tsx`, then delete the copy.
+6. Remove `left-pad` only when package.json and package-lock.json are both updated and install/build pass.
 
-## Baseline checks
+## Review-only outcomes
+
+- `StatusBadge.tsx` and `StatusBadgeCompact.tsx` are near duplicates, not exact duplicates.
+- `unused-helper.ts` is ordinary unreferenced code and should not be deleted without strong native proof.
+- `orphan-a.ts` and `orphan-b.ts` form an orphan island and require strong graph proof.
+- `duplicate-condition.ts` contains a deterministic-looking issue, but automatic bug repair requires a registered rule and verification.
+
+## Must never be deleted
+
+- Next.js page, layout, loading and API route files.
+- `middleware.ts`.
+- Dynamically imported plugin files.
+- Side-effect-only registration module.
+- Config-referenced runtime hook.
+- Package-exported public API.
+- Generated source.
+- Public asset.
+- Migration.
+- Package-script and CLI files.
+- CI workflow and `.env.example`.
+
+## Baseline verification
 
 ```bash
-npm install
+npm ci
 npm run typecheck
+npm test
+npm run verify:safety
+npm run check:config
 npm run build
 ```
 
-The project is intended to pass these checks before cleanup and after validated safe cleanup.
+## Evaluate a RepoDiet cleanup branch
+
+```bash
+npm run evaluate:cleanup
+```
+
+The evaluator checks the expected edit, deletions, duplicate migration, dependency cleanup and preservation of protected/runtime files.
