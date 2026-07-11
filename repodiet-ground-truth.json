@@ -1,0 +1,60 @@
+{
+  "automaticRepairsExpected": [
+    {
+      "path": "src/components/Dashboard.tsx",
+      "action": "edit",
+      "reason": "unused named import Clock"
+    },
+    {
+      "path": "src/archive/OldDashboard.backup.tsx",
+      "action": "delete",
+      "reason": "obvious unreferenced backup file"
+    },
+    {
+      "path": "src/unused/confirmed-unused.ts",
+      "action": "delete_after_native_proof",
+      "reason": "ordinary unreferenced source file"
+    },
+    {
+      "path": "src/unused/empty-module.ts",
+      "action": "delete_after_proof",
+      "reason": "empty unreferenced module"
+    },
+    {
+      "path": "src/components/StatusCardCopy.tsx",
+      "action": "consolidate",
+      "canonicalPath": "src/components/StatusCard.tsx",
+      "callerToUpdate": "src/components/LegacyStatusPanel.tsx"
+    },
+    {
+      "dependency": "left-pad",
+      "action": "remove_after_native_proof_and_lockfile_update"
+    }
+  ],
+  "reviewOnlyExpected": [
+    "src/components/StatusBadge.tsx",
+    "src/components/StatusBadgeCompact.tsx",
+    "src/lib/unused-helper.ts",
+    "src/lib/orphan-a.ts",
+    "src/lib/orphan-b.ts",
+    "src/bugs/duplicate-condition.ts"
+  ],
+  "mustKeep": [
+    "src/app/page.tsx",
+    "src/app/layout.tsx",
+    "src/app/loading.tsx",
+    "src/app/api/health/route.ts",
+    "middleware.ts",
+    "src/plugins/email-plugin.ts",
+    "src/plugins/plugin-registry.ts",
+    "src/side-effects/register.ts",
+    "src/config/runtime-hook.ts",
+    "src/public-api.ts",
+    "src/generated/api-client.generated.ts",
+    "public/fixture-logo.svg",
+    "migrations/001_keep_schema.sql",
+    "scripts/fixture-cli.mjs",
+    ".github/workflows/ci.yml",
+    ".env.example"
+  ]
+}
