@@ -9,7 +9,7 @@ This repository is a controlled adversarial test for RepoDiet. It contains real 
 3. Delete `src/unused/confirmed-unused.ts` only when native unused-code evidence and the internal reference graph agree.
 4. Delete `src/unused/empty-module.ts` only after safety checks.
 5. Consolidate `StatusCardCopy.tsx` into `StatusCard.tsx`, update `LegacyStatusPanel.tsx`, then delete the copy.
-6. Remove `left-pad` only when package.json and package-lock.json are both updated and install/build pass.
+6. Remove `left-pad` only when native dependency analysis confirms it, a lockfile is generated or updated, and install/build pass.
 
 ## Review-only outcomes
 
@@ -35,7 +35,7 @@ This repository is a controlled adversarial test for RepoDiet. It contains real 
 ## Baseline verification
 
 ```bash
-npm ci
+npm install
 npm run typecheck
 npm test
 npm run verify:safety
