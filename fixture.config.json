@@ -1,0 +1,5 @@
+{
+  "runtimeHook": "src/config/runtime-hook.ts",
+  "migration": "migrations/001_keep_schema.sql",
+  "publicAsset": "public/fixture-logo.svg"
+}
