@@ -1,0 +1,205 @@
+{
+  "scanId": "scan_S34yzz0nTypE",
+  "repo": {
+    "owner": "velz-cmd",
+    "name": "repodiet-e2e-test",
+    "branch": "main",
+    "url": "https://github.com/velz-cmd/repodiet-e2e-test",
+    "commitSha": "7c5df00e977a848459cf5407008ecce9c6a5b4b8",
+    "githubRepositoryId": 1296890355
+  },
+  "mode": "live",
+  "summary": {
+    "totalFindings": 1,
+    "duplicateClusters": 0,
+    "unusedFiles": 0,
+    "unusedDependencies": 0,
+    "unusedExports": 0,
+    "orphanPatterns": 0,
+    "slopSignals": 0,
+    "reviewRequired": 0,
+    "safeCandidates": 1,
+    "actionableFixes": 1,
+    "detectedFindings": 1,
+    "doNotTouch": 0
+  },
+  "duplicates": [],
+  "unused": {
+    "files": [],
+    "dependencies": [],
+    "exports": [
+      {
+        "id": "fnd_QNEnrbPZ4a",
+        "type": "unused_import",
+        "title": "Unused import: Clock",
+        "files": [
+          "src/components/Dashboard.tsx"
+        ],
+        "confidence": 0.88,
+        "confidenceReason": "Import symbol not referenced in module body; side-effect imports excluded.",
+        "severity": "low",
+        "action": "safe_candidate",
+        "reason": "Import for \"Clock\" is not used in src/components/Dashboard.tsx.",
+        "source": "repodiet_import",
+        "sourceMode": "native",
+        "evidence": {
+          "summary": "Strong corroborated evidence with transformer preflight — eligible for deterministic repair.",
+          "signals": [
+            "symbol=Clock",
+            "importLine=import { CheckCircle, Clock } from \"lucide-react\";",
+            "line=1",
+            "importKind=named",
+            "importSource=lucide-react",
+            "originalFileHash=137f4304d6acffac",
+            "parserEvidence=repodiet_import_analyzer",
+            "preflight=actionable_candidate",
+            "classification=actionable_candidate",
+            "strategyId=remove_unused_named_specifier",
+            "evidenceGrade=strong",
+            "classificationState=supported",
+            "classificationLabel=unused_import_confirmed",
+            "autoFixAllowed=true",
+            "decisionReason=Strong corroborated evidence with transformer preflight — eligible for deterministic repair."
+          ]
+        },
+        "evidenceGrade": "strong",
+        "classificationState": "supported",
+        "classificationLabel": "unused_import_confirmed",
+        "protected": false,
+        "evidenceBundle": {
+          "analyzerEvidence": [
+            {
+              "channel": "analyzer",
+              "source": "repodiet_import",
+              "summary": "RepoDiet import analyzer evidence",
+              "strength": "supporting"
+            },
+            {
+              "channel": "analyzer",
+              "source": "repodiet_import",
+              "summary": "Unused import symbol: Clock",
+              "strength": "supporting"
+            },
+            {
+              "channel": "analyzer",
+              "source": "repodiet_preflight",
+              "summary": "Transformer preflight passed for exact source snapshot.",
+              "strength": "supporting"
+            }
+          ],
+          "graphEvidence": [],
+          "frameworkEvidence": [],
+          "configurationEvidence": [],
+          "scriptEvidence": [],
+          "runtimeEvidence": [],
+          "gitEvidence": [],
+          "counterEvidence": [],
+          "unresolvedRisks": [],
+          "grade": "strong",
+          "classificationState": "supported",
+          "classificationLabel": "unused_import_confirmed",
+          "decisionReason": "Strong corroborated evidence with transformer preflight — eligible for deterministic repair.",
+          "autoFixAllowed": true
+        },
+        "lifecycleState": "supported",
+        "supportedTransformer": "Remove unused import",
+        "suggestedAction": "Eligible for deterministic cleanup"
+      }
+    ]
+  },
+  "orphans": [],
+  "slopSignals": [],
+  "riskBuckets": {
+    "safeDelete": [
+      "fnd_QNEnrbPZ4a"
+    ],
+    "reviewFirst": [],
+    "doNotTouch": []
+  },
+  "artifacts": {
+    "findingsJson": true
+  },
+  "rawToolReports": {
+    "knip": {
+      "status": "ok",
+      "source": "knip",
+      "sourceMode": "native",
+      "version": "6.25.0",
+      "durationMs": 840,
+      "command": "node node_modules/knip/bin/knip.js --reporter json --no-progress",
+      "exitCode": 0
+    },
+    "jscpd": {
+      "status": "ok",
+      "source": "jscpd",
+      "sourceMode": "native",
+      "durationMs": 122,
+      "command": "node node_modules/jscpd/run-jscpd.js",
+      "exitCode": 0
+    },
+    "madge": {
+      "status": "ok",
+      "source": "madge",
+      "sourceMode": "native",
+      "durationMs": 1112,
+      "command": "node scripts/madge-scan.mjs",
+      "exitCode": 0
+    }
+  },
+  "diagnostics": {
+    "fallbackFindings": [],
+    "excludedCounts": {
+      "duplicates": 0,
+      "unusedFiles": 0,
+      "unusedDependencies": 0,
+      "unusedExports": 0,
+      "orphans": 0
+    },
+    "analyzerErrors": {}
+  },
+  "analyzerStates": {
+    "knip": {
+      "status": "available",
+      "tool": "knip",
+      "version": "6.25.0",
+      "command": "node node_modules/knip/bin/knip.js --reporter json --no-progress",
+      "exitCode": 0,
+      "durationMs": 840
+    },
+    "jscpd": {
+      "status": "available",
+      "tool": "jscpd",
+      "command": "node node_modules/jscpd/run-jscpd.js",
+      "exitCode": 0,
+      "durationMs": 122
+    },
+    "madge": {
+      "status": "available",
+      "tool": "madge",
+      "command": "node scripts/madge-scan.mjs",
+      "exitCode": 0,
+      "durationMs": 1112
+    },
+    "heuristics": {
+      "status": "available",
+      "tool": "repodiet_heuristics",
+      "durationMs": 0
+    }
+  },
+  "repositoryModel": {
+    "projects": [
+      {
+        "packageName": "repodiet-e2e-test",
+        "projectRoot": ".",
+        "framework": "nextjs",
+        "runtimeTarget": "mixed",
+        "workspaceMember": false,
+        "role": "primary"
+      }
+    ],
+    "workspaces": [],
+    "monorepoTool": null,
+    "primaryProjectRoot": ".",
+    "excludedProjectRoots": []
+  }
+}
