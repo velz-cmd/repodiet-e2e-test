@@ -1,4 +1,4 @@
-import { CheckCircle, Clock } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { StatusCard } from "./StatusCard";
 
 export function Dashboard() {
