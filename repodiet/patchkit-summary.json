@@ -1,0 +1,90 @@
+{
+  "id": "patchkit_oapv5aFmPmsy",
+  "generatedAt": "2026-07-12T15:31:39.428Z",
+  "repo": {
+    "owner": "velz-cmd",
+    "name": "repodiet-e2e-test",
+    "branch": "main",
+    "url": "https://github.com/velz-cmd/repodiet-e2e-test",
+    "commitSha": "7c5df00e977a848459cf5407008ecce9c6a5b4b8",
+    "githubRepositoryId": 1296890355
+  },
+  "summary": {
+    "safeDeleteCandidates": 1,
+    "supportedFixesDetected": 1,
+    "transformerCompatible": 1,
+    "dryRunPassed": 1,
+    "detectedFindings": 2,
+    "preflightCheckedFindings": 2,
+    "eligibleFindings": 2,
+    "ineligibleFindings": 0,
+    "executedFindings": 2,
+    "attemptedTransformations": 2,
+    "noopTransformations": 0,
+    "noOpExecutions": 0,
+    "failedTransformations": 0,
+    "failedExecutions": 0,
+    "notAttempted": 0,
+    "generatedChanges": 2,
+    "generatedFileOperations": 2,
+    "validatedChanges": 0,
+    "validatedFileOperations": 0,
+    "contentValidatedOperations": 2,
+    "gitValidatedOperations": 0,
+    "verifiedChanges": 0,
+    "verifiedFileOperations": 0,
+    "deliveredFileOperations": 0,
+    "retainedFixAttempts": 1,
+    "filesEdited": 1,
+    "filesDeleted": 1,
+    "filesAdded": 0,
+    "rawReviewFindings": 0,
+    "reviewFirstItems": 1,
+    "doNotTouchItems": 0,
+    "packageSuggestions": 0,
+    "patchLines": 40,
+    "regressionChecks": 11,
+    "bundleFileCount": 7,
+    "patchValidationStatus": "pending_sandbox",
+    "deletedPaths": [
+      "src/archive/OldDashboard.backup.tsx"
+    ],
+    "changedPaths": [
+      "src/archive/OldDashboard.backup.tsx",
+      "src/components/Dashboard.tsx"
+    ],
+    "blockerBreakdown": {},
+    "blockerSummary": "2 generated file operation(s); validating cleanup changes.",
+    "proofLadder": {
+      "detected": 2,
+      "eligible": 2,
+      "executed": 2,
+      "attempted": 2,
+      "generated": 2,
+      "validated": 0,
+      "contentValidated": 2,
+      "gitValidated": 0,
+      "verified": 0,
+      "delivered": 0,
+      "noop": 0,
+      "failed": 0,
+      "notAttempted": 0,
+      "rejectedForSafety": 0
+    }
+  },
+  "countSemantics": {
+    "rawReviewFindings": "Total findings flagged review_first before path deduplication.",
+    "uniqueReviewItems": "Deduplicated files/packages documented for patch review.",
+    "doNotTouchItems": "Protected framework, config, route, and runtime paths."
+  },
+  "artifacts": [
+    "repodiet-report.md",
+    "repodiet-cleanup.patch",
+    "package-cleanup.md",
+    "regression-checklist.md",
+    "cursor-prompt.md",
+    "findings.json",
+    "patchkit-summary.json"
+  ],
+  "bundleFileCount": 7
+}
