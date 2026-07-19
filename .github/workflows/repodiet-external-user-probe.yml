@@ -1,0 +1,265 @@
+name: RepoDiet External User Probe
+
+on:
+  push:
+    branches:
+      - agent/repodiet-external-user-probe
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe RepoDiet as an anonymous customer
+        env:
+          BASE_URL: https://skillswap-virid-kappa.vercel.app
+          TEST_REPOSITORY: https://github.com/velz-cmd/repodiet-e2e-test
+        run: |
+          cat > /tmp/repodiet-user-probe.mjs <<'EOF'
+          import { writeFileSync, appendFileSync } from "node:fs";
+
+          const baseUrl = process.env.BASE_URL;
+          const repositoryUrl = process.env.TEST_REPOSITORY;
+          const startedAt = new Date().toISOString();
+          const results = {
+            startedAt,
+            baseUrl,
+            repositoryUrl,
+            environment: "external_github_actions_anonymous_user",
+            tests: [],
+          };
+
+          function safeJson(text) {
+            try { return JSON.parse(text); } catch { return null; }
+          }
+
+          function redactHeaders(headers) {
+            const allowed = [
+              "content-type",
+              "payment-required",
+              "x-payment-required",
+              "www-authenticate",
+              "retry-after",
+              "location",
+              "x-request-id",
+              "x-vercel-id",
+            ];
+            const output = {};
+            for (const name of allowed) {
+              const value = headers.get(name);
+              if (value) output[name] = value.length > 1200 ? `${value.slice(0, 1200)}…` : value;
+            }
+            return output;
+          }
+
+          async function request(name, url, options = {}, timeoutMs = 30000) {
+            const began = Date.now();
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+              const response = await fetch(url, {
+                ...options,
+                redirect: "manual",
+                signal: controller.signal,
+                headers: {
+                  "User-Agent": "RepoDiet-External-User-Probe/1.0",
+                  Accept: "application/json,text/plain,*/*",
+                  ...(options.headers || {}),
+                },
+              });
+              const text = await response.text();
+              const json = safeJson(text);
+              const record = {
+                name,
+                url,
+                method: options.method || "GET",
+                status: response.status,
+                ok: response.ok,
+                durationMs: Date.now() - began,
+                headers: redactHeaders(response.headers),
+                body: json ?? text.slice(0, 5000),
+              };
+              results.tests.push(record);
+              return record;
+            } catch (error) {
+              const record = {
+                name,
+                url,
+                method: options.method || "GET",
+                status: null,
+                ok: false,
+                durationMs: Date.now() - began,
+                error: error instanceof Error ? error.message : String(error),
+              };
+              results.tests.push(record);
+              return record;
+            } finally {
+              clearTimeout(timer);
+            }
+          }
+
+          const agentCard = await request(
+            "a2a_agent_card",
+            `${baseUrl}/.well-known/agent-card.json`,
+          );
+
+          const health = await request(
+            "okx_health",
+            `${baseUrl}/api/okx/health`,
+          );
+
+          const triagePayload = JSON.stringify({
+            repositoryUrl,
+            branch: "main",
+            maximumFindings: 3,
+            operation: "analyze_repository",
+            idempotencyKey: `external-user-probe-${Date.now()}`,
+          });
+
+          const a2mcpUnpaid = await request(
+            "a2mcp_unpaid_request",
+            `${baseUrl}/api/a2mcp/quick-triage`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: triagePayload,
+            },
+            45000,
+          );
+
+          const a2mcpForged = await request(
+            "a2mcp_forged_payment_signature",
+            `${baseUrl}/api/a2mcp/quick-triage`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "PAYMENT-SIGNATURE": "forged-external-user-probe",
+              },
+              body: triagePayload,
+            },
+            45000,
+          );
+
+          const a2aSubmit = await request(
+            "a2a_submit_safe_cleanup",
+            `${baseUrl}/api/a2a/tasks`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                type: "repository.safe_cleanup",
+                repoUrl: repositoryUrl,
+                branch: "main",
+                source: "external_user_probe",
+              }),
+            },
+            45000,
+          );
+
+          const taskId = a2aSubmit.body && typeof a2aSubmit.body === "object"
+            ? a2aSubmit.body.taskId
+            : null;
+
+          if (typeof taskId === "string" && taskId.length > 0) {
+            const deadline = Date.now() + 120000;
+            const terminal = new Set([
+              "completed",
+              "awaiting_payment",
+              "awaiting_approval",
+              "delivery_ready",
+              "verification_failed",
+              "analysis_failed",
+              "delivery_failed",
+              "failed",
+            ]);
+            while (Date.now() < deadline) {
+              await new Promise((resolve) => setTimeout(resolve, 3000));
+              const polled = await request(
+                "a2a_task_poll",
+                `${baseUrl}/api/a2a/tasks/${encodeURIComponent(taskId)}`,
+                {},
+                30000,
+              );
+              const status = polled.body && typeof polled.body === "object"
+                ? polled.body.status
+                : null;
+              if (typeof status === "string" && terminal.has(status)) break;
+              if (polled.status === null || (polled.status && polled.status >= 500)) break;
+            }
+          }
+
+          const latestPoll = [...results.tests].reverse().find((item) => item.name === "a2a_task_poll");
+          const cardBody = agentCard.body && typeof agentCard.body === "object" ? agentCard.body : {};
+          const healthBody = health.body && typeof health.body === "object" ? health.body : {};
+          const unpaidHasChallenge = a2mcpUnpaid.status === 402 && (
+            Boolean(a2mcpUnpaid.headers?.["payment-required"]) ||
+            Boolean(a2mcpUnpaid.headers?.["x-payment-required"]) ||
+            (a2mcpUnpaid.body && typeof a2mcpUnpaid.body === "object")
+          );
+
+          results.assertions = {
+            deploymentReachable: results.tests.some((item) => item.status !== null),
+            agentCard200: agentCard.status === 200,
+            agentCardIdentifiesRepoDiet: JSON.stringify(cardBody).toLowerCase().includes("repodiet"),
+            healthReachable: health.status !== null,
+            healthDoesNotReturn5xx: health.status !== null && health.status < 500,
+            a2mcpRequiresPayment: unpaidHasChallenge,
+            forgedPaymentRejected: a2mcpForged.status !== 200,
+            a2aSubmissionAccepted: a2aSubmit.status !== null && a2aSubmit.status >= 200 && a2aSubmit.status < 300 && Boolean(taskId),
+            a2aTaskRetrievable: Boolean(latestPoll && latestPoll.status === 200),
+            a2aReachedUsableState: Boolean(latestPoll?.body && typeof latestPoll.body === "object" && latestPoll.body.status),
+            healthClaims: {
+              a2aRuntimeReady: healthBody.a2aRuntimeReady ?? healthBody.runtime?.a2aRuntimeReady ?? null,
+              workerReady: healthBody.workerReady ?? healthBody.runtime?.workerReady ?? null,
+              workflowReady: healthBody.workflowReady ?? healthBody.runtime?.workflowReady ?? null,
+            },
+          };
+
+          const required = [
+            "deploymentReachable",
+            "agentCard200",
+            "healthReachable",
+            "healthDoesNotReturn5xx",
+            "a2mcpRequiresPayment",
+            "forgedPaymentRejected",
+            "a2aSubmissionAccepted",
+            "a2aTaskRetrievable",
+            "a2aReachedUsableState",
+          ];
+          const failed = required.filter((key) => !results.assertions[key]);
+          results.verdict = failed.length === 0 ? "EXTERNAL_USER_PROBE_PASS" : "EXTERNAL_USER_PROBE_FAIL";
+          results.failedAssertions = failed;
+          results.completedAt = new Date().toISOString();
+
+          writeFileSync("repodiet-user-probe.json", JSON.stringify(results, null, 2));
+          const summary = [
+            "# RepoDiet external user probe",
+            "",
+            `- Verdict: **${results.verdict}**`,
+            `- Production: ${baseUrl}`,
+            `- A2MCP unpaid status: ${a2mcpUnpaid.status ?? "network error"}`,
+            `- A2MCP forged signature status: ${a2mcpForged.status ?? "network error"}`,
+            `- A2A submission status: ${a2aSubmit.status ?? "network error"}`,
+            `- A2A task ID: ${taskId ?? "none"}`,
+            `- A2A latest state: ${latestPoll?.body?.status ?? "not reached"}`,
+            `- Failed assertions: ${failed.length ? failed.join(", ") : "none"}`,
+            "",
+            "No payment was authorized and no approval/PR endpoint was called.",
+          ].join("\n");
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
+          console.log(JSON.stringify(results, null, 2));
+          EOF
+          node /tmp/repodiet-user-probe.mjs
+
+      - name: Upload probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repodiet-external-user-probe
+          path: repodiet-user-probe.json
+          if-no-files-found: error
